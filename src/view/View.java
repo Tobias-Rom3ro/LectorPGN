@@ -35,7 +35,7 @@ public class View extends JFrame implements ActionListener {
 
 
     public View(){
-        super("Lector model.PGN");
+        super("Lector PGN");
         setResizable(false);
         layout = new GridBagLayout();
         setLayout(layout);
@@ -89,10 +89,9 @@ public class View extends JFrame implements ActionListener {
                 indexOfGame = 0;
                 pgn = new PGN(j.getSelectedFile().getAbsolutePath());
 
-                //set variables
                 isSelected = true;
 
-                //set labels in info panel
+                //poner nombres de los archivos
                 String nameOfFile = j.getSelectedFile().getName();
                 pgnLabel.setText(nameOfFile.substring(0, nameOfFile.length()-4));
 
