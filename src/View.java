@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-public class Main extends JFrame implements ActionListener {
+public class View extends JFrame implements ActionListener {
     private final GridBagLayout layout ;
     private final GridBagConstraints constraints ;
     JPanel infoPanel;
@@ -29,7 +29,7 @@ public class Main extends JFrame implements ActionListener {
     private int indexOfMove, indexOfGame;
 
 
-    public Main(){
+    public View(){
         super("Lector PGN");
         setResizable(false);
         layout = new GridBagLayout();
@@ -618,6 +618,6 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(Main::new);
+        SwingUtilities.invokeLater(View::new);
     }
 }

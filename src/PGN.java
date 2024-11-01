@@ -23,7 +23,6 @@ public class PGN {
         this.path = path;
     }
 
-
     public ArrayList<Game> getGames() {
         return games;
     }
