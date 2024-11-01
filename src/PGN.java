@@ -8,15 +8,9 @@ import java.util.Objects;
 public class PGN {
     private ArrayList<Game> games;
     private String path;
-    private GameStat gstat;
-
-    PGN(){
-
-    }
 
     PGN(String path){
         this.setPath(path);
-        this.setGstat();
         games = new ArrayList<>();
         addAdvanced();
     }
@@ -29,13 +23,6 @@ public class PGN {
         this.path = path;
     }
 
-    public GameStat getGstat() {
-        return gstat;
-    }
-
-    public void setGstat() {
-        this.gstat = new GameStat(this);
-    }
 
     public ArrayList<Game> getGames() {
         return games;

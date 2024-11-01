@@ -15,74 +15,53 @@ public class Main extends JFrame implements ActionListener {
     private final GridBagLayout layout ;
     private final GridBagConstraints constraints ;
     JPanel infoPanel;
-    JButton btnPgn, btnFirstGame, btnLastGame, btnPreGame, btnNxtGame,
-            btnReset, btnEnd, btnPreMove, btnNxtMove,
-            btnSearchGame, btnSearchMove, btnFlip, btnPlay;
-    JTextArea tagsArea, statsArea, movesArea;
-    JScrollPane scrollTags, scrollStats, scrollMoves;
-    JTextField searchGame, searchMove;
-    JLabel searchGameLabel, searchMoveLabel, pgnLabel, gameLabel, moveLabel, colorLabel;
+    JButton btnPgn, btnReset, btnEnd, btnPreMove, btnNxtMove, btnSearchMove, btnFlip, btnPlay;
+    JTextArea tagsArea, movesArea;
+    JScrollPane scrollTags, scrollMoves;
+    JTextField searchMove;
+    JLabel searchMoveLabel, pgnLabel, gameLabel, moveLabel, colorLabel;
     JRadioButton whiteRadio, blackRadio;
-    JCheckBox figurineBox, top5Box;
     ButtonGroup bg;
     Timer timer;
     private PGN pgn;
     private Game game;
-    private boolean isSelected, isMove, notFlip, isPlay, isFigurine, isTop5;
-    private int indexOfGame, indexOfMove;
+    private boolean isSelected, isMove, notFlip, isPlay;
+    private int indexOfMove, indexOfGame;
 
 
     public Main(){
-        super("PGN Reader");
-
+        super("Lector PGN");
+        setResizable(false);
         layout = new GridBagLayout();
         setLayout(layout);
         constraints = new GridBagConstraints();
 
         notFlip = true;
+        indexOfGame = 0;
+        isMove = false;
+        isPlay = false;
         indexOfMove = -1;
         timer = new Timer(750, this);
         timer.start();
 
         //create tagsArea
-        tagsArea = new JTextArea(8, 10);
+        tagsArea = new JTextArea(8, 20);
         scrollTags = setTextArea(tagsArea);
 
-        //create statsArea
-        statsArea = new JTextArea (8 , 10);
-        scrollStats = setTextArea(statsArea);
-
         //create movesArea
-        movesArea = new JTextArea (7 , 15);
+        movesArea = new JTextArea (7 , 20);
         scrollMoves = setTextArea(movesArea);
 
         //create info panel
         infoPanel = new JPanel();
         infoPanel.setPreferredSize(new Dimension(100, 140));
         infoPanel.setLayout(layout);
+
         pgnLabel = new JLabel("");
         gameLabel = new JLabel("");
         moveLabel = new JLabel("");
         colorLabel = new JLabel("");
 
-        figurineBox = new JCheckBox("Figurine");
-        figurineBox.addItemListener(e -> {
-            isFigurine = figurineBox.isSelected();
-            if(figurineBox.isSelected())
-                movesArea.setText(figurineText(game.getStrMovesText()));
-            else
-                movesArea.setText(game.getStrMovesText());
-            highlightMove();
-        });
-
-        top5Box = new JCheckBox("Top 5 Moves");
-        top5Box.addItemListener(e -> {
-            isTop5 = top5Box.isSelected();
-            statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
-        });
-
-        //add component to info panel
-        //figurine checkbox and move stat checkbox would add later
         constraints.insets = new Insets(0, 0, 10, 0);
         addComponentToInfoPanel(pgnLabel, 0);
         addComponentToInfoPanel(gameLabel, 1);
@@ -93,24 +72,20 @@ public class Main extends JFrame implements ActionListener {
 
 
         //create buttons
-        btnPgn = new JButton ("Open PGN");
+        btnPgn = new JButton ("Abrir PGN");
         btnPgn.addActionListener(e -> {
             JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
             j.setAcceptAllFileFilterUsed(false);
-            j.setDialogTitle("Select a .pgn file");
-            FileNameExtensionFilter restrict = new FileNameExtensionFilter("Only .pgn files", "pgn");
+            j.setDialogTitle("Selecciona un archivo .pgn");
+            FileNameExtensionFilter restrict = new FileNameExtensionFilter("Solamente archivos .pgn", "pgn");
             j.addChoosableFileFilter(restrict);
             int r = j.showOpenDialog(null);
             if (r == JFileChooser.APPROVE_OPTION) {
+                indexOfGame = 0;
                 pgn = new PGN(j.getSelectedFile().getAbsolutePath());
-
-                //add figurine checkbox and to5 checkbox to info panel
-                addFigurineCheckBox();
-                addTop5CheckBox();
 
                 //set variables
                 isSelected = true;
-                indexOfGame = 0;
 
                 //set labels in info panel
                 String nameOfFile = j.getSelectedFile().getName();
@@ -120,52 +95,8 @@ public class Main extends JFrame implements ActionListener {
             }
         });
 
-        btnFirstGame = new JButton ("First Game");
-        btnFirstGame.addActionListener(e -> {
-            if(isSelected && indexOfGame > 0){
-                indexOfGame = 0;
-                setGameButton();
-            }
-        });
 
-        btnLastGame = new JButton ("Last Game");
-        btnLastGame.addActionListener(e -> {
-            if(isSelected && indexOfGame < pgn.getGames().size()-1){
-                indexOfGame = pgn.getGames().size()-1;
-                setGameButton();
-            }
-        });
-
-        btnPreGame = new JButton ("Previous Game");
-        btnPreGame.addActionListener(e -> {
-            if(isSelected && indexOfGame > 0){
-                indexOfGame--;
-                setGameButton();
-            }
-        });
-
-        btnNxtGame = new JButton ("Next Game");
-        btnNxtGame.addActionListener(e -> {
-            if(isSelected && indexOfGame < pgn.getGames().size()-1){
-                indexOfGame++;
-                setGameButton();
-            }
-        });
-
-        searchGame = new JTextField(5);
-        searchGameLabel = new JLabel("No. of Game:");
-        btnSearchGame = new JButton("Search");
-        btnSearchGame.addActionListener(e -> {
-            if(isSelected && searchGame.getText() != null){
-                int index = Integer.parseInt(searchGame.getText())-1;
-                if(index >= 0 && index < pgn.getGames().size()) {
-                    indexOfGame = index;
-                    setGameButton();
-                }
-            }
-        });
-
-        btnReset = new JButton ("Reset");
+        btnReset = new JButton ("Reiniciar");
         btnReset.addActionListener(e -> {
             if(isSelected){
                 //set variables
@@ -179,19 +110,17 @@ public class Main extends JFrame implements ActionListener {
                 //set labels of info panel
                 int size = game.board.getMoves().size();
                 size = (size/2)+(size%2);
-                moveLabel.setText("Move "+(indexOfMove + 1)+" of "+size);
+                moveLabel.setText("Movimiento "+(indexOfMove + 1)+" de "+size);
                 colorLabel.setText("");
 
-                statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
-
-                btnPlay.setText("Play");
+                btnPlay.setText("Reproducir");
 
                 highlightMove();
                 repaint();
             }
         });
 
-        btnEnd = new JButton ("End");
+        btnEnd = new JButton ("Final");
         btnEnd.addActionListener(e -> {
             if(isSelected && indexOfMove < game.board.getMoves().size()-1){
                 //set variables
@@ -207,17 +136,15 @@ public class Main extends JFrame implements ActionListener {
                 int size = game.board.getMoves().size();
                 size = (size/2)+(size%2);
                 if(indexOfMove+1 != 0 && (indexOfMove+1) % 2 == 1) {
-                    moveLabel.setText("Move " + ((indexOfMove + 2) / 2) + " of " + size);
-                    colorLabel.setText("White");
+                    moveLabel.setText("Movimiento " + ((indexOfMove + 2) / 2) + " de " + size);
+                    colorLabel.setText("Blanca");
                 }
                 else if(indexOfMove+1 != 0) {
-                    moveLabel.setText("Move " + ((indexOfMove + 1) / 2) + " of " + size);
-                    colorLabel.setText("Black");
+                    moveLabel.setText("Movimiento " + ((indexOfMove + 1) / 2) + " de " + size);
+                    colorLabel.setText("Negra");
                 }
 
-                statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
-
-                btnPlay.setText("Play");
+                btnPlay.setText("Reproducir");
 
                 highlightMove();
                 repaint();
@@ -225,7 +152,7 @@ public class Main extends JFrame implements ActionListener {
         });
 
 
-        btnPreMove = new JButton ("Previous Move");
+        btnPreMove = new JButton ("Movimiento anterior");
         btnPreMove.addActionListener(e -> {
             if(isSelected && indexOfMove >= 0){
                 //set variables
@@ -240,28 +167,27 @@ public class Main extends JFrame implements ActionListener {
                 int size = game.board.getMoves().size();
                 size = (size/2)+(size%2);
                 if(indexOfMove+1 != 0 && (indexOfMove+1) % 2 == 1) {
-                    moveLabel.setText("Move " + ((indexOfMove + 2) / 2) + " of " + size);
-                    colorLabel.setText("White");
+                    moveLabel.setText("Movimiento " + ((indexOfMove + 2) / 2) + " de " + size);
+                    colorLabel.setText("Blanca");
                 }
                 else if(indexOfMove+1 != 0) {
-                    moveLabel.setText("Move " + ((indexOfMove + 1) / 2) + " of " + size);
-                    colorLabel.setText("Black");
+                    moveLabel.setText("Movimiento " + ((indexOfMove + 1) / 2) + " de " + size);
+                    colorLabel.setText("Negra");
                 }
                 else {
-                    moveLabel.setText("Move 0 of " + size);
+                    moveLabel.setText("Movimiento 0 de " + size);
                     colorLabel.setText("");
                 }
 
-                statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
 
-                btnPlay.setText("Play");
+                btnPlay.setText("Reproducir");
 
                 highlightMove();
                 repaint();
             }
         });
 
-        btnNxtMove = new JButton ("Next Move");
+        btnNxtMove = new JButton ("Siguiente movimiento");
         btnNxtMove.addActionListener(e -> {
             if(isSelected && indexOfMove < game.board.getMoves().size()-1){
                 //set variables
@@ -276,17 +202,15 @@ public class Main extends JFrame implements ActionListener {
                 int size = game.board.getMoves().size();
                 size = (size/2)+(size%2);
                 if(indexOfMove+1 != 0 && (indexOfMove+1) % 2 == 1) {
-                    moveLabel.setText("Move " + ((indexOfMove + 2) / 2) + " of " + size);
-                    colorLabel.setText("White");
+                    moveLabel.setText("Movimiento " + ((indexOfMove + 2) / 2) + " de " + size);
+                    colorLabel.setText("Blanca");
                 }
                 else if(indexOfMove+1 != 0) {
-                    moveLabel.setText("Move " + ((indexOfMove + 1) / 2) + " of " + size);
-                    colorLabel.setText("Black");
+                    moveLabel.setText("Movimiento " + ((indexOfMove + 1) / 2) + " de " + size);
+                    colorLabel.setText("Negra");
                 }
 
-                statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
-
-                btnPlay.setText("Play");
+                btnPlay.setText("Reproducir");
 
                 highlightMove();
                 repaint();
@@ -294,12 +218,12 @@ public class Main extends JFrame implements ActionListener {
         });
 
         searchMove = new JTextField(5);
-        searchMoveLabel = new JLabel("No. of Move:");
-        whiteRadio = new JRadioButton("White");
-        blackRadio = new JRadioButton("Black");
+        searchMoveLabel = new JLabel("No. de movimiento:");
+        whiteRadio = new JRadioButton("Blanca");
+        blackRadio = new JRadioButton("Negra");
         bg = new ButtonGroup();
         bg.add(whiteRadio); bg.add(blackRadio);
-        btnSearchMove = new JButton("Search");
+        btnSearchMove = new JButton("Buscar");
         btnSearchMove.addActionListener(e -> {
             if(isSelected && searchMove.getText() != null){
                 int index = (Integer.parseInt(searchMove.getText())-1)*2;
@@ -321,12 +245,12 @@ public class Main extends JFrame implements ActionListener {
                     int size = game.board.getMoves().size();
                     size = (size/2)+(size%2);
                     if(indexOfMove+1 != 0 && (indexOfMove+1) % 2 == 1) {
-                        moveLabel.setText("Move " + ((indexOfMove + 2) / 2) + " of " + size);
-                        colorLabel.setText("White");
+                        moveLabel.setText("Movimiento " + ((indexOfMove + 2) / 2) + " de " + size);
+                        colorLabel.setText("Blanca");
                     }
                     else if(indexOfMove+1 != 0) {
-                        moveLabel.setText("Move " + ((indexOfMove + 1) / 2) + " of " + size);
-                        colorLabel.setText("Black");
+                        moveLabel.setText("Movimiento " + ((indexOfMove + 1) / 2) + " de " + size);
+                        colorLabel.setText("Negra");
                     }
                 }
                 else if(index == -2){
@@ -335,31 +259,30 @@ public class Main extends JFrame implements ActionListener {
                     game.board.resetBoard();
                     int size = game.board.getMoves().size();
                     size = (size/2)+(size%2);
-                    moveLabel.setText("Move "+(indexOfMove + 1)+" of "+size);
+                    moveLabel.setText("Movimiento "+(indexOfMove + 1)+" de "+size);
                     colorLabel.setText("");
                 }
                 isPlay = false;
-                btnPlay.setText("Play");
-                statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
+                btnPlay.setText("Reproducir");
                 highlightMove();
                 repaint();
             }
         });
 
-        btnFlip = new JButton ("Flip Board");
+        btnFlip = new JButton ("Voltear tablero");
         btnFlip.addActionListener(e -> {
             notFlip = !notFlip;
             repaint();
         });
 
-        btnPlay = new JButton ("Play");
+        btnPlay = new JButton ("Reproducir");
         btnPlay.addActionListener(e -> {
             if(isSelected && indexOfMove < game.board.getMoves().size()-1) {
                 isPlay = !isPlay;
                 if (isPlay)
-                    btnPlay.setText("Pause");
+                    btnPlay.setText("Pausa");
                 else
-                    btnPlay.setText("Play");
+                    btnPlay.setText("Reproducir");
             }
         });
 
@@ -370,76 +293,63 @@ public class Main extends JFrame implements ActionListener {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1;
 
-        //add textAreas with scroll
-        constraints.insets = new Insets(5, 5, 0, 3);
-        addComponent(scrollTags , 0 , 8 , 5 , 1);
-        constraints.insets = new Insets(5, 2, 0, 5);
-        addComponent(scrollStats , 0 , 13 , 4 , 1);
-        constraints.insets = new Insets(5, 5, 0, 5);
-        addComponent(scrollMoves , 1 , 8 , 7 , 1);
-        addComponent(infoPanel, 1 , 15 , 2 , 1);
+// Primero, organizamos el lado derecho en secciones más claras
+// Sección 1: Áreas de texto
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weightx = 1;
+        constraints.insets = new Insets(5, 5, 5, 5);
+        addComponent(scrollTags, 0, 8, 5, 2);  // Tags área
+        addComponent(scrollMoves, 2, 8, 5, 3);  // Moves área
+        addComponent(infoPanel, 5, 8, 5, 2);    // Info panel
 
-        //add pgn button
-        constraints.insets = new Insets(10, 5, 0, 5);
-        addComponent(btnPgn, 2 , 8 , 9 , 1);
+// Sección 2: Botones principales
+        constraints.insets = new Insets(5, 5, 5, 5);
+        addComponent(btnPgn, 7, 8, 5, 1);       // Botón PGN
 
-        //add game buttons
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(btnPreGame, 3 , 8 , 2 , 1);
+// Sección 3: Controles de navegación
+        JPanel navigationPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        navigationPanel.add(btnPreMove);
+        navigationPanel.add(btnNxtMove);
+        navigationPanel.add(btnReset);
+        navigationPanel.add(btnEnd);
+        constraints.insets = new Insets(5, 5, 5, 5);
+        addComponent(navigationPanel, 8, 8, 5, 1);
 
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(btnNxtGame, 3 , 10 , 2 , 1);
+// Sección 4: Panel de búsqueda
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        searchPanel.add(searchMoveLabel);
+        searchPanel.add(searchMove);
+        searchPanel.add(whiteRadio);
+        searchPanel.add(blackRadio);
+        searchPanel.add(btnSearchMove);
+        constraints.insets = new Insets(5, 5, 5, 5);
+        addComponent(searchPanel, 9, 8, 5, 1);
 
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(btnFirstGame, 4 , 8 , 2 , 1);
+// Sección 5: Controles de tablero
+        JPanel boardControlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        boardControlPanel.add(btnFlip);
+        boardControlPanel.add(btnPlay);
+        constraints.insets = new Insets(5, 5, 5, 5);
+        addComponent(boardControlPanel, 10, 8, 5, 10);
 
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(btnLastGame, 4 , 10 , 2 , 1);
+        // Ajustar tamaños preferidos
+        scrollTags.setPreferredSize(new Dimension(250, 120));
+        scrollMoves.setPreferredSize(new Dimension(250, 150));
+        infoPanel.setPreferredSize(new Dimension(250, 100));
 
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(searchGameLabel, 5 , 8 , 1 , 1);
+// Ajustar tamaños de los campos de texto
+        searchMove.setPreferredSize(new Dimension(50, 25));
 
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(searchGame, 5 , 9 , 1 , 1);
-
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(btnSearchGame, 5 , 10 , 2 , 1);
-
-        //add move buttons
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(btnPreMove, 3 , 13 , 2 , 1);
-
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(btnNxtMove, 3 , 15 , 2 , 1);
-
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(btnReset, 4 , 13 , 2 , 1);
-
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(btnEnd, 4 , 15 , 2 , 1);
-
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(searchMoveLabel, 5 , 13 , 1 , 1);
-
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(searchMove, 5 , 14 , 1 , 1);
-
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(whiteRadio, 5 , 15 , 1 , 1);
-
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(blackRadio, 5 , 16, 1 , 1);
-
-        constraints.insets = new Insets(5, 3, 0, 5);
-        addComponent(btnSearchMove, 6 , 15 , 2 , 1);
-
-        //add flip button
-        constraints.insets = new Insets(5, 5, 0, 2);
-        addComponent(btnFlip, 6 , 8 , 1 , 1);
-
-        //add play button
-        constraints.insets = new Insets(5, 3, 0, 0);
-        addComponent(btnPlay, 6 , 11 , 3 , 1);
+// Ajustar tamaños de los botones
+        Dimension buttonSize = new Dimension(110, 25);
+        btnPreMove.setPreferredSize(buttonSize);
+        btnNxtMove.setPreferredSize(buttonSize);
+        btnReset.setPreferredSize(buttonSize);
+        btnEnd.setPreferredSize(buttonSize);
+        btnFlip.setPreferredSize(new Dimension(115,25));
+        btnPlay.setPreferredSize(new Dimension(115,25));
+        btnPgn.setPreferredSize(new Dimension(115, 25));
+        btnSearchMove.setPreferredSize(new Dimension(80, 25));
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
@@ -468,7 +378,7 @@ public class Main extends JFrame implements ActionListener {
 
         public void draw(Graphics g) {
             // paint the board
-            g.setColor(new Color(118, 150, 86));
+            g.setColor(new Color(96, 0, 0));
             for(int i = 0; i <= SCREEN_SIZE; i += UNIT_SIZE) {
                 for(int j = 0; j <= SCREEN_SIZE; j += UNIT_SIZE) {
                     if (((i / UNIT_SIZE) % 2 == 0 && (j / UNIT_SIZE) % 2 != 0)
@@ -544,7 +454,7 @@ public class Main extends JFrame implements ActionListener {
                 if(i % 2 == 1)
                     g.setColor(new Color(238, 238, 210));
                 else
-                    g.setColor(new Color(118, 150, 86));
+                    g.setColor(new Color(96, 0, 0));
                 g.drawString(String.valueOf(i),2,13+UNIT_SIZE*(8-i));
                 g.drawString(String.valueOf((char)(i+96)),(i)*UNIT_SIZE-10,8*UNIT_SIZE-5);
             }
@@ -557,18 +467,18 @@ public class Main extends JFrame implements ActionListener {
                         Piece piece = Method.getPiece(new int[]{i, j});
                         if(piece != Piece.NONE) {
                             switch (piece) {
-                                case WHITE_PAWN -> image = ImageIO.read(new File("src/image/wp.png"));
-                                case BLACK_PAWN -> image = ImageIO.read(new File("src/image/bp.png"));
-                                case WHITE_ROOK -> image = ImageIO.read(new File("src/image/wr.png"));
-                                case BLACK_ROOK -> image = ImageIO.read(new File("src/image/br.png"));
-                                case WHITE_KNIGHT -> image = ImageIO.read(new File("src/image/wn.png"));
-                                case BLACK_KNIGHT -> image = ImageIO.read(new File("src/image/bn.png"));
-                                case WHITE_BISHOP -> image = ImageIO.read(new File("src/image/wb.png"));
-                                case BLACK_BISHOP -> image = ImageIO.read(new File("src/image/bb.png"));
-                                case WHITE_QUEEN -> image = ImageIO.read(new File("src/image/wq.png"));
-                                case BLACK_QUEEN -> image = ImageIO.read(new File("src/image/bq.png"));
-                                case WHITE_KING -> image = ImageIO.read(new File("src/image/wk.png"));
-                                case BLACK_KING -> image = ImageIO.read(new File("src/image/bk.png"));
+                                case WHITE_PAWN -> image = ImageIO.read(new File("src/resources/wp.png"));
+                                case BLACK_PAWN -> image = ImageIO.read(new File("src/resources/bp.png"));
+                                case WHITE_ROOK -> image = ImageIO.read(new File("src/resources/wr.png"));
+                                case BLACK_ROOK -> image = ImageIO.read(new File("src/resources/br.png"));
+                                case WHITE_KNIGHT -> image = ImageIO.read(new File("src/resources/wn.png"));
+                                case BLACK_KNIGHT -> image = ImageIO.read(new File("src/resources/bn.png"));
+                                case WHITE_BISHOP -> image = ImageIO.read(new File("src/resources/wb.png"));
+                                case BLACK_BISHOP -> image = ImageIO.read(new File("src/resources/bb.png"));
+                                case WHITE_QUEEN -> image = ImageIO.read(new File("src/resources/wq.png"));
+                                case BLACK_QUEEN -> image = ImageIO.read(new File("src/resources/bq.png"));
+                                case WHITE_KING -> image = ImageIO.read(new File("src/resources/wk.png"));
+                                case BLACK_KING -> image = ImageIO.read(new File("src/resources/bk.png"));
                             }
                             if(notFlip)
                                 g.drawImage(image, j * UNIT_SIZE, (7-i) * UNIT_SIZE, null);
@@ -617,67 +527,31 @@ public class Main extends JFrame implements ActionListener {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
-    /**
-     * add figurine checkbox to info panel
-     */
-    private void addFigurineCheckBox(){
-        if(!isSelected) {
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.weightx = 0;
-            constraints.insets = new Insets(0, 0, 0, 0);
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            addComponentToInfoPanel(figurineBox, 4);
-        }
-    }
-
-    /**
-     * add top 5 checkbox to info panel
-     */
-    private void addTop5CheckBox(){
-        if(!isSelected) {
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.weightx = 0;
-            constraints.insets = new Insets(0, 0, 0, 0);
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            addComponentToInfoPanel(top5Box, 5);
-        }
-    }
 
     /**
      * add common lines to pgn and game buttons
      */
-    private void setGameButton(){
-        //set variables
-        isMove = false;
-        isPlay = false;
-        indexOfMove = -1;
+    private void setGameButton() {
+        if (pgn != null && !pgn.getGames().isEmpty()) {
+            //set variables
+            isMove = false;
+            isPlay = false;
+            indexOfMove = -1;
 
-        //set the game
-        game = pgn.getGames().get(indexOfGame);
-        game.board = new Board(Converter.convertMoves(game.getStringMovesArray()));
-        game.board.resetBoard();
+            //set the game
+            game = pgn.getGames().get(indexOfGame);
+            game.board = new Board(Converter.convertMoves(game.getStringMovesArray()));
+            game.board.resetBoard();
 
-        //set textAreas based on the game
-        tagsArea.setText(game.toString());
-        if(isFigurine)
-            movesArea.setText(figurineText(game.getStrMovesText()));
-        else
+            //set textAreas based on the game
+            tagsArea.setText(game.toString());
             movesArea.setText(game.getStrMovesText());
-        statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
 
-        //set labels in info panel
-        gameLabel.setText("Game "+(indexOfGame+1)+" of "+pgn.getGames().size());
-        int size = game.board.getMoves().size();
-        size = (size/2)+(size%2);
-        moveLabel.setText("Move "+(indexOfMove + 1)+" of "+size);
-        colorLabel.setText("");
+            //set play button's text
+            btnPlay.setText("Reproducir");
 
-        //set play button's text
-        btnPlay.setText("Play");
-
-        repaint();
+            repaint();
+        }
     }
 
     /**
@@ -691,14 +565,13 @@ public class Main extends JFrame implements ActionListener {
             int size = game.board.getMoves().size();
             size = (size/2)+(size%2);
             if(indexOfMove+1 != 0 && (indexOfMove+1) % 2 == 1) {
-                moveLabel.setText("Move " + ((indexOfMove + 2) / 2) + " of " + size);
-                colorLabel.setText("White");
+                moveLabel.setText("Movimiento " + ((indexOfMove + 2) / 2) + " de " + size);
+                colorLabel.setText("Blanca");
             }
             else if(indexOfMove+1 != 0) {
-                moveLabel.setText("Move " + ((indexOfMove + 1) / 2) + " of " + size);
-                colorLabel.setText("Black");
+                moveLabel.setText("Movimiento " + ((indexOfMove + 1) / 2) + " de " + size);
+                colorLabel.setText("Negra");
             }
-            statsArea.setText(pgn.getGstat().toString(indexOfGame, indexOfMove, isTop5));
             highlightMove();
         }
     }
@@ -708,7 +581,7 @@ public class Main extends JFrame implements ActionListener {
      */
     private void highlightMove(){
         Highlighter highlighter = movesArea.getHighlighter();
-        Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(231, 231, 0));
+        Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(231, 231, 0, 255));
         highlighter.removeAllHighlights();
         if(indexOfMove >= 0) {
             int indexOfMoveText;
@@ -718,13 +591,10 @@ public class Main extends JFrame implements ActionListener {
             else {
                 indexOfMoveText = movesArea.getText().indexOf(String.valueOf((indexOfMove + 1) / 2));
             }
-            if(colorLabel.getText().equals("Black"))
+            if(colorLabel.getText().equals("Negra"))
                 indexOfMoveText += game.board.getMoves().get(indexOfMove-1).getStringMove().length();
             String strMove;
-            if(isFigurine)
-                strMove = toFigurine(game.board.getMoves().get(indexOfMove).getStringMove());
-            else
-                strMove = game.board.getMoves().get(indexOfMove).getStringMove();
+            strMove = game.board.getMoves().get(indexOfMove).getStringMove();
             int p0 = movesArea.getText().indexOf(strMove, indexOfMoveText);
             int p1 = p0 + strMove.length();
             try {
@@ -735,83 +605,13 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
-    /**
-     * convert move string to figurine
-     */
-    private String toFigurine(String s){
-        if(indexOfMove % 2 == 0){
-            for(int i = 0; i < s.length(); i++) {
-                switch (s.charAt(i)) {
-                    case 'R' -> s = s.replaceFirst("R", "♖");
-                    case 'N' -> s = s.replaceFirst("N", "♘");
-                    case 'B' -> s = s.replaceFirst("B", "♗");
-                    case 'Q' -> s = s.replaceFirst("Q", "♕");
-                    case 'K' -> s = s.replaceFirst("K", "♔");
-                }
-            }
-        } else {
-            for(int i = 0; i < s.length(); i++) {
-                switch (s.charAt(i)) {
-                    case 'R' -> s = s.replaceFirst("R", "♜");
-                    case 'N' -> s = s.replaceFirst("N", "♞");
-                    case 'B' -> s = s.replaceFirst("B", "♝");
-                    case 'Q' -> s = s.replaceFirst("Q", "♛");
-                    case 'K' -> s = s.replaceFirst("K", "♚");
-                }
-            }
-        }
-        return s;
-    }
-
-    /**
-     * convert move text to figurine text
-     */
-    private String figurineText(String s){
-        for(int i = 0; i < s.length(); i++) {
-            if(i > 1)
-                i--;
-            if (s.charAt(i) == '.') {
-                i++;
-                while(s.charAt(i) != '.') {
-                    if(s.charAt(i) == ' ')
-                        i++;
-                    while(s.charAt(i) != ' ') {
-                        switch (s.charAt(i)) {
-                            case 'R' -> s = s.replaceFirst("R", "♖");
-                            case 'N' -> s = s.replaceFirst("N", "♘");
-                            case 'B' -> s = s.replaceFirst("B", "♗");
-                            case 'Q' -> s = s.replaceFirst("Q", "♕");
-                            case 'K' -> s = s.replaceFirst("K", "♔");
-                        }
-                        i++;
-                    }
-                    while(s.charAt(i) != '.') {
-                        switch (s.charAt(i)) {
-                            case 'R' -> s = s.replaceFirst("R", "♜");
-                            case 'N' -> s = s.replaceFirst("N", "♞");
-                            case 'B' -> s = s.replaceFirst("B", "♝");
-                            case 'Q' -> s = s.replaceFirst("Q", "♛");
-                            case 'K' -> s = s.replaceFirst("K", "♚");
-                        }
-                        i++;
-                        if(i >= s.length())
-                            break;
-                    }
-                    if(i >= s.length())
-                        break;
-                }
-            }
-        }
-        return s;
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if(isPlay) {
             play();
             if(indexOfMove == game.board.getMoves().size()-1){
                 isPlay = false;
-                btnPlay.setText("Play");
+                btnPlay.setText("Reproducir");
             }
             repaint();
         }
