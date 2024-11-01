@@ -1,3 +1,5 @@
+package model;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -9,7 +11,7 @@ public class PGN {
     private ArrayList<Game> games;
     private String path;
 
-    PGN(String path){
+    public PGN(String path){
         this.setPath(path);
         games = new ArrayList<>();
         addAdvanced();
@@ -69,7 +71,7 @@ public class PGN {
     }
 
     /**
-     * prepare a Game object and add it to games.
+     * prepare a model.Game object and add it to games.
      */
     void addAdvanced(){
         ArrayList<String> lines = read(getPath());
@@ -165,7 +167,7 @@ public class PGN {
    }
 
     /**
-     * add a Game object to games.
+     * add a model.Game object to games.
      */
     void add(Game g){
         games.add(g);

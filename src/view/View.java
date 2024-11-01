@@ -1,3 +1,8 @@
+package view;
+
+import model.*;
+import utils.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -30,7 +35,7 @@ public class View extends JFrame implements ActionListener {
 
 
     public View(){
-        super("Lector PGN");
+        super("Lector model.PGN");
         setResizable(false);
         layout = new GridBagLayout();
         setLayout(layout);
@@ -72,7 +77,7 @@ public class View extends JFrame implements ActionListener {
 
 
         //create buttons
-        btnPgn = new JButton ("Abrir PGN");
+        btnPgn = new JButton ("Abrir archivo PGN");
         btnPgn.addActionListener(e -> {
             JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
             j.setAcceptAllFileFilterUsed(false);
@@ -304,7 +309,7 @@ public class View extends JFrame implements ActionListener {
 
 // Sección 2: Botones principales
         constraints.insets = new Insets(5, 5, 5, 5);
-        addComponent(btnPgn, 7, 8, 5, 1);       // Botón PGN
+        addComponent(btnPgn, 7, 8, 5, 1);       // Botón model.PGN
 
 // Sección 3: Controles de navegación
         JPanel navigationPanel = new JPanel(new GridLayout(2, 2, 5, 5));
@@ -358,7 +363,7 @@ public class View extends JFrame implements ActionListener {
     }
 
     /**
-     * create a panel for chess board
+     * creacion del panel para el tablero
      */
     private class ChessBoard extends JPanel{
         final int UNIT_SIZE = 60;
@@ -387,7 +392,7 @@ public class View extends JFrame implements ActionListener {
                 }
             }
 
-            //paint the move (show initial and final square of move)
+            //pintar los movimientos
             if(isMove){
                 Move move;
                 if(indexOfMove >= 0)
@@ -616,6 +621,7 @@ public class View extends JFrame implements ActionListener {
             repaint();
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(View::new);

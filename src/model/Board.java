@@ -1,7 +1,11 @@
+package model;
+
+import utils.Method;
+
 import java.util.ArrayList;
 import java.util.Stack;
 
-public class Board extends Method{
+public class Board extends Method {
     private ArrayList<Move> moves;
     private final Stack<Move> movesPerformed;
     static char[][] finalPositions;
@@ -14,7 +18,7 @@ public class Board extends Method{
         capturedPieces = new ArrayList<>();
     }
 
-    Board(ArrayList<Move> moves){
+    public Board(ArrayList<Move> moves){
         this.setMoves(moves);
         movesPerformed = new Stack<>();
         finalPositions = buildFinalPosition();
@@ -43,7 +47,7 @@ public class Board extends Method{
                 else
                     capturedPieces.add(Piece.WHITE_PAWN);
             } else {
-                if((getPosition(move.getTo())[0] != 0 && getPosition(move.getTo())[0] != 7)
+                if((Method.getPosition(move.getTo())[0] != 0 && Method.getPosition(move.getTo())[0] != 7)
                         || (move.getCaptured() != Piece.WHITE_PAWN && move.getCaptured() != Piece.BLACK_PAWN))
                     capturedPieces.add(move.getCaptured());
             }
@@ -68,7 +72,7 @@ public class Board extends Method{
                     else
                         capturedPieces.remove(Piece.WHITE_PAWN);
                 } else {
-                    if((getPosition(lastMove.getTo())[0] != 0 && getPosition(lastMove.getTo())[0] != 7)
+                    if((Method.getPosition(lastMove.getTo())[0] != 0 && Method.getPosition(lastMove.getTo())[0] != 7)
                             || (lastMove.getCaptured() != Piece.WHITE_PAWN && lastMove.getCaptured() != Piece.BLACK_PAWN))
                         capturedPieces.remove(lastMove.getCaptured());
                 }
@@ -98,11 +102,11 @@ public class Board extends Method{
      * it would build an char[][] base on initial position of chess game.
      */
     private char[][] buildFinalPosition(){
-        resetSquares();
+        Method.resetSquares();
         char[][] finalPosition = new char[8][8];
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                finalPosition[i][j] = getNotationPiece(new int[]{i, j});
+                finalPosition[i][j] = Method.getNotationPiece(new int[]{i, j});
             }
         }
         return finalPosition;

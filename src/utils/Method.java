@@ -1,3 +1,8 @@
+package utils;
+
+import model.Piece;
+import model.Square;
+
 public class Method {
     /**
      * return square from given position.

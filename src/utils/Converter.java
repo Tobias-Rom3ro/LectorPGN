@@ -1,12 +1,18 @@
+package utils;
+
+import model.Move;
+import model.Piece;
+import model.Square;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Converter extends Method{
     /**
-     * it convert a move from PGN notation to a Move object.
+     * it convert a move from model.PGN notation to a model.Move object.
      * first it detect moves by their length and then by special notation that would separate their type of move
      * from others.
-     * then it detect initial and final position of move and add the move to an Arraylist of Move objects.
+     * then it detect initial and final position of move and add the move to an Arraylist of model.Move objects.
      */
     public static ArrayList<Move> convertMoves(String[] movesArray){
         ArrayList<Move> moves = new ArrayList<>();

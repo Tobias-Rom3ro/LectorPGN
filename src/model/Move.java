@@ -1,4 +1,8 @@
-public class Move extends Method{
+package model;
+
+import utils.*;
+
+public class Move extends Method {
     private Square from;
     private Square to;
     private Piece movingPiece;
@@ -11,7 +15,7 @@ public class Move extends Method{
     private int typeOfConstructor;
     private String stringMove;
 
-    Move(Square s1, Square s2, Piece movingPiece, String stringMove){
+    public Move(Square s1, Square s2, Piece movingPiece, String stringMove){
         this.setFrom(s1);
         this.setTo(s2);
         this.setMovingPiece(movingPiece);
@@ -23,7 +27,7 @@ public class Move extends Method{
         setNewPosition(s2, movingPiece);
     }
 
-    Move(Square s1, Square s2, Piece movingPiece, Piece captured, Piece specialPawn, boolean reverse, String stringMove){
+    public Move(Square s1, Square s2, Piece movingPiece, Piece captured, Piece specialPawn, boolean reverse, String stringMove){
         this.setFrom(s1);
         this.setTo(s2);
         this.setMovingPiece(movingPiece);
@@ -36,7 +40,7 @@ public class Move extends Method{
         if(notReverse())
             new Move(s1, s2, movingPiece, null);
         else {
-            if ((getPosition(s1)[0] != 0 && getPosition(s2)[0] != 7)
+            if ((Method.getPosition(s1)[0] != 0 && Method.getPosition(s2)[0] != 7)
                     || (captured != Piece.WHITE_PAWN && captured != Piece.BLACK_PAWN)) {
                 setNewPosition(s2, captured);
                 if (specialPawn == Piece.NONE)
@@ -51,14 +55,14 @@ public class Move extends Method{
 
         if (captured == Piece.NONE) {
             if (movingPiece == Piece.WHITE_PAWN) {
-                int[] enPassant = new int[]{getPosition(s2)[0] - 1, getPosition(s2)[1]};
+                int[] enPassant = new int[]{Method.getPosition(s2)[0] - 1, Method.getPosition(s2)[1]};
                 if(notReverse())
                     setNewPosition(enPassant, Piece.NONE);
                 else
                     setNewPosition(enPassant, Piece.BLACK_PAWN);
             }
             else if (movingPiece == Piece.BLACK_PAWN) {
-                int[] enPassant = new int[]{getPosition(s2)[0] + 1, getPosition(s2)[1]};
+                int[] enPassant = new int[]{Method.getPosition(s2)[0] + 1, Method.getPosition(s2)[1]};
                 if(notReverse())
                     setNewPosition(enPassant, Piece.NONE);
                 else
@@ -67,7 +71,7 @@ public class Move extends Method{
         }
     }
 
-    Move(boolean white, boolean kingSideCastle, boolean queenSideCastle, boolean reverse, String stringMove){
+    public Move(boolean white, boolean kingSideCastle, boolean queenSideCastle, boolean reverse, String stringMove){
         this.setWhite(white);
         this.setKingSideCastle(kingSideCastle);
         this.setQueenSideCastle(queenSideCastle);
@@ -208,8 +212,8 @@ public class Move extends Method{
      * set new piece on given square
      */
     private void setNewPosition(Square square, Piece piece){
-        int[] position = getPosition(square);
-        Board.finalPositions[position[0]][position[1]] = getNotationPiece(piece);
+        int[] position = Method.getPosition(square);
+        Board.finalPositions[position[0]][position[1]] = Method.getNotationPiece(piece);
         Square.piece.put(square, piece);
     }
 
@@ -217,8 +221,8 @@ public class Move extends Method{
      * set new piece on given position
      */
     private void setNewPosition(int[] position, Piece piece){
-        Board.finalPositions[position[0]][position[1]] = getNotationPiece(piece);
-        Square.piece.put(getSquare(position), piece);
+        Board.finalPositions[position[0]][position[1]] = Method.getNotationPiece(piece);
+        Square.piece.put(Method.getSquare(position), piece);
     }
 
     /**
@@ -278,7 +282,7 @@ public class Move extends Method{
             return "["+ stringPiece(getMovingPiece())+" from "+getFrom()+" to "+getTo()+"]";
         else if(getTypeOfConstructor() == 2) {
             if(getSpecialPawn() == Piece.NONE) {
-                if ((getPosition(getTo())[0] != 0 && getPosition(getTo())[0] != 7)
+                if ((Method.getPosition(getTo())[0] != 0 && Method.getPosition(getTo())[0] != 7)
                         || (getCaptured() != Piece.WHITE_PAWN && getCaptured() != Piece.BLACK_PAWN))
                     return "[" + stringPiece(getMovingPiece()) + " from " + getFrom() + " to " + getTo() + "]";
                 else {
@@ -314,7 +318,7 @@ public class Move extends Method{
                 else if (this.getTypeOfConstructor() == 2 && this.getFrom() == m.getFrom() && this.getTo() == m.getTo()
                     && this.getMovingPiece() == m.getMovingPiece()) {
                     if(this.getSpecialPawn() == m.getSpecialPawn() && this.getSpecialPawn() == Piece.NONE) {
-                        if ((getPosition(getTo())[0] != 0 && getPosition(getTo())[0] != 7)
+                        if ((Method.getPosition(getTo())[0] != 0 && Method.getPosition(getTo())[0] != 7)
                                 || (getCaptured() != Piece.WHITE_PAWN && getCaptured() != Piece.BLACK_PAWN)) {
                             return true;
                         } else {

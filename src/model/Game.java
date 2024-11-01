@@ -1,7 +1,9 @@
+package model;
+
 import java.util.LinkedHashMap;
 
 public class Game{
-    Board board;
+    public Board board;
     private final LinkedHashMap<String, String> tags;
     private String[] stringMovesArray;
     private String strMovesText;
@@ -34,10 +36,10 @@ public class Game{
         //because this way, we optimise program and it runs faster; we only need to convert
         //moves of one game: the game that player choose to see.
         //but if we use line 40, program would convert moves of all games.
-        //if you want to use toString method of Board class, or run classes without gui program;
+        //if you want to use toString method of model.Board class, or run classes without gui program;
         //you may need to uncomment line 40 and comment line 39.
         this.board = board;
-        //this.board = new Board(Converter.convertMoves(getStringMovesArray()));
+        //this.board = new model.Board(utils.Converter.convertMoves(getStringMovesArray()));
         this.setStrMovesText(strMovesText);
     }
 
