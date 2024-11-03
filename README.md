@@ -63,7 +63,7 @@ public class Main {
 ## 🎮 Uso
 
 1. Inicia la aplicación
-2. Utiliza el botón "Abrir archivo PGN" para cargar una partida
+2. Utiliza el botón "Abrir archivo PGN" para cargar una partida. Puedes usar el archivo de muestra que se encuentra en el repositorio.
 3. Navega por la partida usando los controles:
    - Movimiento anterior
    - Siguiente movimiento
