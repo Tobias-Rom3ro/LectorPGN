@@ -7,13 +7,14 @@ import model.Square;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Convierte un movimiento de la notación PGN del modelo a un objeto model.Move.
+ * Primero detecta los movimientos por su longitud y luego por una notación especial que separa su tipo de movimiento
+ * de otros. Luego, detecta la posición inicial y final del movimiento y agrega el movimiento a una lista de objetos model.Move.
+ */
+
 public class Converter extends Method{
-    /**
-     * it convert a move from model.PGN notation to a model.Move object.
-     * first it detect moves by their length and then by special notation that would separate their type of move
-     * from others.
-     * then it detect initial and final position of move and add the move to an Arraylist of model.Move objects.
-     */
+
     public static ArrayList<Move> convertMoves(String[] movesArray){
         ArrayList<Move> moves = new ArrayList<>();
         resetSquares();
@@ -106,16 +107,17 @@ public class Converter extends Method{
     }
 
     /**
-     * it detect initial position of a Pawn movement.
+     * Detecta la posición inicial de un movimiento de un Peón.
      * @param i
-     * index of move to determine white or black.
+     * índice del movimiento para determinar si es blanco o negro.
      * @param position
-     * final position of move
+     * posición final del movimiento.
      * @param s1
-     * it's the first letter of move string when pawn's movement does include capturing.
+     * es la primera letra de la cadena de movimiento cuando el movimiento del peón incluye captura.
      * "exd5" => s1 = 'e'
-     * '0' => declare that movement does not include capturing. like "e5" => s1 = '0'
+     * '0' => declara que el movimiento no incluye captura, como "e5" => s1 = '0'
      */
+
     public static int[] detectPawn(int i, int[] position, char s1){
         if(i % 2 == 0) {
             if(s1 == '0') {
@@ -137,21 +139,22 @@ public class Converter extends Method{
     }
 
     /**
-     * it detect initial position of a piece movement. there is a different method for each type of piece.
-     * for Rooks it looks for a suitable rook in squares that are vertical or horizontal to final position.
-     * for Bishops it looks for a suitable bishop in squares that are diagonal to final position.
-     * for Knights it looks for a suitable knight in 8 squares that a knight could be before moving to final position.
-     * for Queen it looks for a suitable queen in squares that are vertical or horizontal or diagonal to final position.
-     * for King it looks for a suitable king in 8 squares that a king could be before moving to final position.
+     * Detecta la posición inicial de un movimiento de una pieza. Hay un método diferente para cada tipo de pieza.
+     * Para las Torres, busca una torre adecuada en las casillas que son verticales u horizontales a la posición final.
+     * Para los Alfiles, busca un alfil adecuado en las casillas que son diagonales a la posición final.
+     * Para los Caballos, busca un caballo adecuado en 8 casillas donde un caballo podría estar antes de moverse a la posición final.
+     * Para la Reina, busca una reina adecuada en las casillas que son verticales, horizontales o diagonales a la posición final.
+     * Para el Rey, busca un rey adecuado en 8 casillas donde un rey podría estar antes de moverse a la posición final.
      * @param i
-     * index of move
+     * índice del movimiento.
      * @param piece
-     * moving piece
+     * pieza que se mueve.
      * @param position
-     * final position of move
+     * posición final del movimiento.
      * @param capture
-     * indicate whether movement does include capture or not.
+     * indica si el movimiento incluye captura o no.
      */
+
     public static int[] detectPiece(int i, String piece, int[] position, boolean capture){
         switch (piece.toUpperCase()) {
             case "R":
@@ -434,18 +437,19 @@ public class Converter extends Method{
     }
 
     /**
-     * it detect initial position of a piece movement when some extra information provided in string move.
+     * Detecta la posición inicial de un movimiento de una pieza cuando se proporciona información adicional en la cadena del movimiento.
      * @param i
-     * index of move
+     * índice del movimiento.
      * @param piece
-     * moving piece
+     * pieza que se mueve.
      * @param x
-     * information about x axis.
+     * información sobre el eje x.
      * @param y
-     * information about y axis.
+     * información sobre el eje y.
      * @param position
-     * final position of move
+     * posición final del movimiento.
      */
+
     public static int[] detectPieceGivenInformation(int i, String piece, String x, String y, int[] position){
         if(x != null) {
             int x1 = Integer.parseInt(x)-1;
@@ -620,18 +624,19 @@ public class Converter extends Method{
     }
 
     /**
-     * if a piece stops a check, then we are not allow to moving it.
-     * it detect king's position and check if the move happens is there any clear path to king vertically, horizontally
-     * and diagonally or not. if there was then it would not allow it and return false.
+     * Si una pieza detiene un jaque, entonces no se permite moverla.
+     * Detecta la posición del rey y verifica si el movimiento genera algún camino despejado hacia el rey de manera vertical, horizontal
+     * o diagonal. Si hay un camino despejado, no se permitirá el movimiento y se devolverá false.
      * @param i
-     * index of move
+     * índice del movimiento.
      * @param from
-     * initial square
+     * casilla inicial.
      * @param to
-     * final square
+     * casilla final.
      * @param piece
-     * moving piece
+     * pieza que se mueve.
      */
+
     public static boolean isAllowedCheck(int i, Square from, Square to, Piece piece){
         boolean allowed = true;
 
@@ -1014,17 +1019,18 @@ public class Converter extends Method{
     }
 
     /**
-     * if a move cannot be done (because another piece is between initial and final position)
-     * it would not allow it.
+     * Si un movimiento no se puede realizar (porque hay otra pieza entre la posición inicial y la final),
+     * no se permitirá.
      * @param initial
-     * initial position
+     * posición inicial.
      * @param position
-     * final position
+     * posición final.
      * @param capture
-     * indicate whether movement does include capture or not.
+     * indica si el movimiento incluye captura o no.
      * @param type
-     * type of movement: "horizontally" - "vertically" - "diagonally"
+     * tipo de movimiento: "horizontalmente" - "verticalmente" - "diagonalmente".
      */
+
     public static boolean isAllowedMove(int[] initial, int[] position, boolean capture, String type){
         boolean allowed = true;
         if(type.equals("vertically")){

@@ -2,19 +2,21 @@ package model;
 
 import utils.*;
 
+// Clase que representa un movimiento en el juego de ajedrez
 public class Move extends Method {
-    private Square from;
-    private Square to;
-    private Piece movingPiece;
-    private Piece captured;
-    private Piece specialPawn;
-    private boolean white;
-    private boolean kingSideCastle;
-    private boolean queenSideCastle;
-    private boolean reverse;
-    private int typeOfConstructor;
-    private String stringMove;
+    private Square from; // Cuadro de origen del movimiento
+    private Square to; // Cuadro de destino del movimiento
+    private Piece movingPiece; // Pieza que se está moviendo
+    private Piece captured; // Pieza capturada en el movimiento
+    private Piece specialPawn; // Pieza especial (para promociones de peón)
+    private boolean white; // Indica si es el turno de las piezas blancas
+    private boolean kingSideCastle; // Indica si es un enroque por el lado del rey
+    private boolean queenSideCastle; // Indica si es un enroque por el lado de la reina
+    private boolean reverse; // Indica si el movimiento es revertido
+    private int typeOfConstructor; // Tipo de constructor utilizado para crear el movimiento
+    private String stringMove; // Representación en texto del movimiento
 
+    // Constructor para un movimiento básico
     public Move(Square s1, Square s2, Piece movingPiece, String stringMove){
         this.setFrom(s1);
         this.setTo(s2);
@@ -27,6 +29,7 @@ public class Move extends Method {
         setNewPosition(s2, movingPiece);
     }
 
+    // Constructor para un movimiento que puede incluir captura y peón especial
     public Move(Square s1, Square s2, Piece movingPiece, Piece captured, Piece specialPawn, boolean reverse, String stringMove){
         this.setFrom(s1);
         this.setTo(s2);
@@ -71,6 +74,8 @@ public class Move extends Method {
         }
     }
 
+
+    // Constructor para movimientos de enroque
     public Move(boolean white, boolean kingSideCastle, boolean queenSideCastle, boolean reverse, String stringMove){
         this.setWhite(white);
         this.setKingSideCastle(kingSideCastle);
@@ -208,26 +213,19 @@ public class Move extends Method {
         this.stringMove = stringMove;
     }
 
-    /**
-     * set new piece on given square
-     */
+    // Establece una nueva posición de una pieza en el cuadrado dado
     private void setNewPosition(Square square, Piece piece){
         int[] position = Method.getPosition(square);
         Board.finalPositions[position[0]][position[1]] = Method.getNotationPiece(piece);
         Square.piece.put(square, piece);
     }
 
-    /**
-     * set new piece on given position
-     */
+    // Devuelve el nombre de la pieza dada
     private void setNewPosition(int[] position, Piece piece){
         Board.finalPositions[position[0]][position[1]] = Method.getNotationPiece(piece);
         Square.piece.put(Method.getSquare(position), piece);
     }
 
-    /**
-     * return name of given piece
-     */
     private String stringPiece(Piece piece){
         switch (piece) {
             case WHITE_ROOK -> {
@@ -274,38 +272,6 @@ public class Move extends Method {
         return getStringMove();
     }
 
-    /**
-     * toString version 2: it only care about move itself and it exclude capturing act. Bg4 and Bxg4 are same here.
-     */
-    public String toStringV2(){
-        if(getTypeOfConstructor() == 1)
-            return "["+ stringPiece(getMovingPiece())+" from "+getFrom()+" to "+getTo()+"]";
-        else if(getTypeOfConstructor() == 2) {
-            if(getSpecialPawn() == Piece.NONE) {
-                if ((Method.getPosition(getTo())[0] != 0 && Method.getPosition(getTo())[0] != 7)
-                        || (getCaptured() != Piece.WHITE_PAWN && getCaptured() != Piece.BLACK_PAWN))
-                    return "[" + stringPiece(getMovingPiece()) + " from " + getFrom() + " to " + getTo() + "]";
-                else {
-                    return "[" + stringPiece(getCaptured()) + " from " + getFrom() + " to " + getTo() + " promote to " + stringPiece(getMovingPiece()) + "]";
-                }
-            } else {
-                return "[" + stringPiece(getSpecialPawn()) + " from " + getFrom() + " to " + getTo() + " promote to " + stringPiece(getMovingPiece()) + "]";
-            }
-        }
-        else {
-            if (isWhite()) {
-                if (isKingSideCastle())
-                    return "[White King Side Castle]";
-                else
-                    return "[White Queen Side Castle]";
-            } else {
-                if (isKingSideCastle())
-                    return "[Black King Side Castle]";
-                else
-                    return "[Black Queen Side Castle]";
-            }
-        }
-    }
 
     @Override
     public boolean equals(Object o){

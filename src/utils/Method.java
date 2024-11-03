@@ -3,13 +3,18 @@ package utils;
 import model.Piece;
 import model.Square;
 
+/**
+ * La clase Method tiene metodos/utilidades para interactuar con el tablero de ajedrez.
+ * Incluye métodos para convertir posiciones a casillas, obtener piezas en posiciones específicas,
+ * y restablecer el tablero a su configuración inicial.
+ */
 public class Method {
-    /**
-     * return square from given position.
-     */
+
+    // Convierte una posición (fila, columna) en una casilla del tablero de ajedrez
     public static Square getSquare(int[] position){
         String name = null;
 
+        // Determina el nombre de la columna basado en el índice de columna
         switch (position[1]){
             case 0 -> name = "A";
             case 1 -> name = "B";
@@ -20,41 +25,35 @@ public class Method {
             case 6 -> name = "G";
             case 7 -> name = "H";
         }
-        name += position[0]+1;
-        return Square.valueOf(name);
+        name += position[0]+1; // Agrega el número de fila
+        return Square.valueOf(name); // Convierte el nombre en un valor de enum Square
     }
 
-    /**
-     * return position from given square.
-     */
+    // Obtiene la posición (fila, columna) de una casilla específica
     public static int[] getPosition(Square square){
         return Square.position.get(square);
     }
 
-    /**
-     * return position from given string of square.
-     */
+    // Sobrecarga para obtener la posición de una casilla basada en su nombre como string
     public static int[] getPosition(String s){
         return Square.position.get(Square.valueOf(s.toUpperCase()));
     }
 
-    /**
-     * return piece from given position.
-     */
+    // Obtiene la pieza en una posición dada (fila, columna)
     public static Piece getPiece(int[] position){
-        return Square.piece.get(getSquare(position));
+        return Square.piece.get(getSquare(position)); // Llama a getSquare para convertir la posición a una casilla
     }
 
-    /**
-     * return piece from given index of move and character of first letter of piece.
-     * it use index of move to determine white or black.
-     */
+    // Determina la pieza basada en el índice de fila y el carácter de notación
     public static Piece getPiece(int i, char c){
         String s = String.valueOf(c);
+        // Determina el color de la pieza basado en la fila
         if(i % 2 == 0)
-            s = s.toUpperCase();
+            s = s.toUpperCase(); // Fila par (blancas)
         else
-            s = s.toLowerCase();
+            s = s.toLowerCase(); // Fila impar (negras)
+
+        // Asigna la pieza correspondiente a partir de la notación
         switch (s){
             case "P" -> {
                 return Piece.WHITE_PAWN;
@@ -93,32 +92,26 @@ public class Method {
                 return Piece.BLACK_KING;
             }
         }
-        return null;
+        return null; // Devuelve null si no se encuentra la pieza
     }
 
-    /**
-     * return notation of piece from given piece.
-     */
+    // Obtiene la notación de una pieza específica
     public static char getNotationPiece(Piece piece){
         return Piece.notation.get(piece);
     }
 
-    /**
-     * return notation of piece from given position.
-     */
+    // Obtiene la notación de la pieza en una posición dada (fila, columna)
     public static char getNotationPiece(int[] position){
         return Piece.notation.get(Square.piece.get(getSquare(position)));
     }
 
-    /**
-     * it reset relation between squares and pieces to initial position of chess.
-     */
+    // Reinicia las posiciones de las piezas en el tablero a la configuración inicial
     public static void resetSquares(){
-        Square[] square = Square.values();
+        Square[] square = Square.values(); // Obtiene todas las casillas
         for (Square s : square) {
-            String[] arr = s.toString().split("");
-            switch (arr[1]) {
-                case "1":
+            String[] arr = s.toString().split(""); // Divide el nombre de la casilla en letra y número
+            switch (arr[1]) { // Determina las piezas iniciales según la fila
+                case "1": // Primera fila
                     switch (arr[0]) {
                         case "A", "H" -> Square.piece.put(s, Piece.WHITE_ROOK);
                         case "B", "G" -> Square.piece.put(s, Piece.WHITE_KNIGHT);
@@ -127,7 +120,7 @@ public class Method {
                         case "E" -> Square.piece.put(s, Piece.WHITE_KING);
                     }
                     break;
-                case "8":
+                case "8": // Octava fila
                     switch (arr[0]) {
                         case "A", "H" -> Square.piece.put(s, Piece.BLACK_ROOK);
                         case "B", "G" -> Square.piece.put(s, Piece.BLACK_KNIGHT);
@@ -136,13 +129,13 @@ public class Method {
                         case "E" -> Square.piece.put(s, Piece.BLACK_KING);
                     }
                     break;
-                case "2":
+                case "2": // Segunda fila, donde están los peones blancos
                     Square.piece.put(s, Piece.WHITE_PAWN);
                     break;
-                case "7":
+                case "7": // Séptima fila, donde están los peones negros
                     Square.piece.put(s, Piece.BLACK_PAWN);
                     break;
-                default:
+                default: // Otras casillas no tienen piezas
                     Square.piece.put(s, Piece.NONE);
                     break;
             }
